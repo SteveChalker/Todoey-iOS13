@@ -39,6 +39,10 @@ class ToDoListViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         print(items[indexPath.row])
         
+//        Demonstration of deleting item from database
+//        context.delete(items[indexPath.row])
+//        items.remove(at: indexPath.row)
+        
         items[indexPath.row].done = !items[indexPath.row].done
         
         saveItems()
@@ -76,6 +80,7 @@ class ToDoListViewController: UITableViewController {
     func saveItems() {
         
         do {
+            //Always need to call context.save after editing the database
             try context.save()
         } catch {
            print("Error saving conext \(error)")
