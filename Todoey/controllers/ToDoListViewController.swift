@@ -22,6 +22,7 @@ class ToDoListViewController: UITableViewController {
         //Prints location of SQL Database in file system for debugging.
         let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
         print(dataFilePath)
+        
         loadItems()
     }
     
@@ -89,15 +90,40 @@ class ToDoListViewController: UITableViewController {
         self.tableView.reloadData()
     }
     
-    func loadItems() {
-        let request : NSFetchRequest<Item> = Item.fetchRequest()
+    func loadItems(
+        with request: NSFetchRequest<Item> = Item.fetchRequest()
+    ) {
         do {
             items = try context.fetch(request)
         } catch {
             print("Erro fetching data from context, \(error)")
         }
+        
+        tableView.reloadData()
     
     }
-    
 }
 
+//MARK: - Search Bar Delegate
+extension ToDoListViewController : UISearchBarDelegate {
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        let request : NSFetchRequest<Item> = Item.fetchRequest()
+        request.predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
+
+        request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
+        
+        loadItems(with: request)
+    }
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        if(searchBar.text?.count == 0) {
+            loadItems()
+
+            DispatchQueue.main.async {
+                searchBar.resignFirstResponder()
+            }
+
+        }
+    }
+}
